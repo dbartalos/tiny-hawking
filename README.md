@@ -1,1 +1,1 @@
-# tiny-hawking
+# tiny-hawking [![Build Status](https://travis-ci.org/dbartalos/tiny-hawking.svg?branch=master)](https://travis-ci.org/dbartalos/tiny-hawking)
