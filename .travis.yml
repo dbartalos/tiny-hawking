@@ -1,0 +1,28 @@
+sudo: required
+
+env:
+  global:
+    - secure: a8TPGpD8EKAR+RK+WYYbp+SNYeXQj6uMbGJbEdokEaZUdIkbk/jj0kJdx2DewrEx+2ZeJBY42mXtaDu8Imd5Bd5UVjDN7z8jMC2D+jucgmyczTJzV6BgVMh2oy9wisyMZhMFGiN8SwFTSHnMEpT2lXybdKMrqhrd0cWbt+rn/61M3m4mykeJ2R8t5hr1X+XeWtq6MUfOiFOVJNba1criImSRrf15l+QM+G68qSoPMLbNqN2+JtxFsdZxULIzDqNAh+luWNOO+IP3d+hoqfTGw5nYd6FZpPqJ2mqBvJMqATs8SJVAd+6l0vlHIGX9q84bUXPpP0fiz9hwZFOtlqhwNBPCwzCQulZcJG0s2sF4aJFntG3le9k8VuB8jZ9u/7eYAshO93b8D2yDFdTZQogQCWFiCCHazgx+gKe2gXKmKUc8gK2grYPsK131Wi+x7ZHQvVZMc/BkrMWO7l9Fn+ifzeRemGIZ3O9EtpNel7yxF1dicBrt1LoUMMEiPZ2C1wJyt382yXVaGnWJtZYnL+A1wE/9/ssH0Ed0vzFJjSJ76ehNmaFmG9mk5xpqxeT6wgZL3ZbUvzqCk+BVBhfZAKUzSTKnEt3081apw9B71RLS7EaD43l+UBqFd8+unHyUrJRpS8Y3oR2I7kRu8f+1Hy1ihAXQf8whySXMROe+uLsCffk=
+    - SHA=$(git rev-parse HEAD)
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+services:
+  - docker
+before_install:
+  - curl https://sdk.cloud.google.com | bash > /dev/null;
+  - source $HOME/google-cloud-sdk/path.bash.inc
+  - gcloud components update kubectl
+  - gcloud auth activate-service-account --key-file service-account.json
+  - gcloud config set project dbartalos-tiny-hawking 
+  - gcloud config set compute/zone us-west2-a
+  - gcloud container clusters get-credentials standard-cluster-1
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker build -t dbartalos/react-test -f ./complex/client/Dockerfile.dev ./complex/client
+
+script:
+  - docker run -e CI=true dbartalos/react-test npm test -- --coverage
+
+deploy:
+  provider: script
+  script: bash ./complex/deploy.sh
+  on:
+    branch: master
