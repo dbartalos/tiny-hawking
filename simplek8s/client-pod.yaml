@@ -7,10 +7,10 @@ metadata:
 spec:
   containers:
     - name: client
-      image: dbartalos/multi-client
+      image: dbartalos/multi-worker
       resources:
         limits:
           memory: "128Mi"
           cpu: "500m"
       ports:
-        - containerPort: 3000
+        - containerPort: 9999
